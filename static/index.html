@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+	<meta charset="utf-8">
+	<title>Canapepere</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+
+<body>
+  <div></div>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/marx/3.0.3/marx.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.1/vue-router.js"></script>
+  <script src="http://livejs.com/live.js"></script>
+
+<script>
+let NavBar = Vue.component('NavBar', {
+  template: `<nav>lol ok s</nav>`
+});
+let Toaster = Vue.component('Toaster', {
+  template: '<div>toaster</div>'
+});
+let App = Vue.component('App', ({
+  template: `<div><NavBar/><main><router-view/></main><Toaster/></div>`,
+  components: { NavBar, Toaster },
+}));
+let Home = Vue.component('Home', ({
+  template: `<div><router-link :to="{ name: 'Activity', params:{id:123}}">User</router-link></div>`
+}));
+let User = Vue.component('User', {
+  template: '<div>user</div>'
+});
+let Activity = Vue.component('Activity', ({
+  template: `<div>
+  <a href="http://www.google.com/calendar/event?action=TEMPLATE&text=Sample+Event&dates=20140829T080000Z/20140829T080000Z&details=&location=&trp=false">add</a>
+  </div>`,
+}));
+let Page = Vue.component('Page', {
+  template: '<div>Page</div>'
+});
+Vue.use(VueRouter)
+//ip-api.com/json
+new Vue({
+  el: 'div',
+  render: h => h(App),
+  data: function () {
+    return {
+      get token() { return localStorage.getItem('token') || ''; },
+      set token(v) { localStorage.setItem('token', v) },
+      get me() { return (localStorage.getItem('token') || '').split(' ')[0]; },
+    };
+  },
+  methods: {
+    fetch(form, query="") {
+      var params = { headers: { authorization: localStorage.token }, method: ((form.attributes||{}).method||{}).value || 'GET', query};
+      if (form instanceof HTMLFormElement) {
+        if (params.method.match(/^POST$/i)) params.body = new FormData(form);
+        else params.query = new URLSearchParams(new FormData(form));
+        params.path = new URL(form.action).pathname;
+      } else {
+        params.path = form;
+        params.query = Object.keys(params.query).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params.query[k])).join('&');
+      }
+      return fetch(params.path + (params.query?'?':'') + params.query, params).then(r => {
+        if (!r.ok) throw Error(r.statusText);
+        if (r.headers.has('authorization')) {
+          this.$root.token = r.headers.get('authorization');
+        }
+        return r;
+      })
+    }
+  },
+  router: new VueRouter({
+    mode: 'history',
+    routes: [
+      { path: '/', name: "Home", component: Home },
+      { path: '/activity/:id?', name: "Activity", component: Activity, props: true },
+      { path: '/user/:id?', name: "User", component: User, props: true },
+      { path: '*', component: Page },
+    ]
+  }),
+})
+
+</script>
+<style>
+body {
+  background: #ededed;
+}
+@media only screen{
+  main {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #ccc;
+    border-radius: 0.4em;
+    padding: 1em 2em 2em 2em;
+    margin: 2em auto;
+  }
+}
+@media only print{
+  nav {
+    display:none!important;
+  }
+}
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  color: white;
+  display: flex;
+  justify-content: space-around;
+  max-width:768px;
+  align-items: center;
+  box-shadow: 0 0.5em 0.5em -0.5em;
+  padding: 0.5em 0;
+  background: #1d3557;
+  border-radius: 0 0 .5em .5em;
+  margin: auto;
+}
+button {
+  cursor: pointer;
+}
+</style>
+</body>

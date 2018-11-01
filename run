@@ -1,0 +1,20 @@
+#!/bin/bash
+
+dev(){
+	while inotifywait -qqe MODIFY src; do
+		build
+	done
+}
+
+build(){
+	mkdir -p static
+	while IFS= read p;do
+		if [[ "$p" =~ ^import.\"([^\"]*)\"$ ]];then
+			echo "let ${BASH_REMATCH[1]} = Vue.component('${BASH_REMATCH[1]}', $(cat src/${BASH_REMATCH[1]}.js));"
+		else
+			echo "$p";
+		fi
+	done < src/index.html > static/index.html;
+}
+
+$@
