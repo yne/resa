@@ -1,0 +1,51 @@
+<!doctype HTML>
+<meta charset="utf-8">
+<title>Resa</title>
+<!--link rel="icon" href="data:;base64,iVBORw0KGgo="-->
+<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.1/vue-router.min.js"></script>
+<script type=module>
+	import $auth from "/$auth.js"
+	//import $toaster from "/$toaster.js"
+	import Planning from "/Planning.js"
+	import User from "/User.js"
+	import Event from "/Event.js"
+
+	let routes = [
+		{ path: '/', name: "home", component: Planning },
+		{ path: '/event/:id?', name: "event", component: Event, props: true },
+		{ path: '/user/:id?', name: "user", component: User, props: true },
+	];
+	new Vue({
+		el:'#root',
+		router: new VueRouter({mode: 'history',routes}),
+		/*data(){return {transitionName:null}},
+		watch: {
+			'$route' (to, from) {
+				const toDepth = to.path.split('/').length;
+				const fromDepth = from.path.split('/').length;
+				this.transitionName = fromDepth === toDepth ? 'fade' : fromDepth < toDepth ? 'dive' : 'rise';
+			}
+		}*/
+	})
+</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/marx/3.0.3/marx.min.css" rel="stylesheet">
+<link href="/style.css" rel="stylesheet">
+<div id=root>
+	<nav>
+		<router-link :to="{name:'home'}"><span class=logo>🏸 Resa</span></router-link>
+		<form action="/api/auth" flex v-if="!$auth" v-on:submit.prevent="fetch($event.target,{Text}).then(jwt => $root.$data.$token=jwt)">
+			<input size=8 name=username placeholder=username>
+			<input size=8 name=password placeholder=password type=password>
+			<button>Sign-in</button>
+		</form>
+		<router-link :to="{name:'user'}"  v-if="!$auth">Sign-Up</router-link>
+		<router-link v-if="$auth" :to="{name:'user',params:{id:$auth.name}}">{{$auth.name}}</router-link>
+		<button v-if="$auth" v-on:click="$root.$data.$token=null">Logout</button>
+	</nav>
+	<!--transition :name="transitionName" mode="out-in"-->
+		<router-view class=child-view />
+	<!--/transition-->
+</div>

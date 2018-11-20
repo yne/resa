@@ -1,3 +1,0 @@
-{
-  template: '<div>toaster</div>'
-}

@@ -2,11 +2,12 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 import os
+import ssl
 
 class Handler(SimpleHTTPRequestHandler):
     index="index.html"
     def do_GET(self):
-        if not self.path.lstrip('/'):
+        if "api" not in self.path and not os.path.exists(self.path.lstrip('/').split("?")[0]):
             self.path = '/'
         return SimpleHTTPRequestHandler.do_GET(self)
     def do_POST(self):
@@ -26,6 +27,10 @@ if __name__ == "__main__":
     from sys import argv
     host = '0.0.0.0'
     port = int(argv[1]) if len(argv) == 2 else 8000
-    print('Serving http://%s:%d ...' % (host, port))
-    HTTPServer((host, port), Handler).serve_forever()
+    cert = './server.pem' # openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes
+    secu = os.path.isfile(cert)
+    httpd = HTTPServer((host, port), Handler)
+    if secu: httpd.socket = ssl.wrap_socket (httpd.socket, certfile=cert, server_side=True)
+    print('Serving http%s://%s:%d ...' % ("s" if secu else "", host, port))
+    httpd.serve_forever()
 
