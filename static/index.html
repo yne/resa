@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Resa</title>
+<link rel="icon" href="/static/favicon.ico">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+  @import url("https://unpkg.com/chota@0.5.2/dist/chota.min.css");
+  :root {--grid-maxWidth: 72rem}
+  input[readonly]{border:none !important}
+  #app>nav{margin-bottom: 1em}
+  button:disabled { opacity: .25 !important}
+  input:disabled {background: none;border-color: transparent !important}
+  fieldset { padding: 2rem}
+  .trans-leave-active, .trans-enter-active { transition: all .1s ease-out}
+  .trans-enter, .trans-leave-to {opacity:0}
+  .trans-enter {transform: translateY(-10px)}
+  .trans-leave-to {transform: translateY(-15px)}
+</style>
+
+<div id=app class=container>
+  <nav class="tabs is-full">
+    <a is=router-link :to="{name:'events'}">📅 Agenda</a>
+    <a is=router-link :to="{name:'event'}">🎾 Event</a>
+    <a is=router-link :to="{name:'me'}">👤 Profile</a>
+  </nav>
+  <transition name="trans" mode="out-in">
+    <router-view />
+  </transition>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.1/vue-router.min.js"></script>
+<script>
+  form = f => [].reduce.call(f, (d, i) => (i.name ? d[i.name] = i.value : 0, d), {});
+  rest = (url, method = 'GET', body) => fetch(url, {
+    method, body: body && JSON.stringify(body),
+    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${localStorage.token}` }
+  })
+    .then(r => { if (!r.ok) throw Error(r.statusText); return r.json() })
+    .catch(alert)
+</script>
+<script type=module>
+import Agenda from "/static/Agenda.js";
+import Event from "/static/Event.js";
+import Profile from "/static/Profile.js";
+new Vue({
+  el: '#app',
+  router: new VueRouter({
+    linkActiveClass: 'active',
+    mode: 'history',
+    routes: [
+      { path: '/', redirect:'/list'},
+      { name: "events", path: '/list',   component: Agenda},
+      { name: "event",  path: '/e/:id?', component: Event, props: true},
+      { name: "user",   path: '/u/:id',  component: Profile, props: true},
+      { name: "me",     path: '/u/',     component: Profile, props: true},
+      { name: "404",    path: '*',       component: {template: `<router-link :to="'/'">404</router-link>`}},
+    ]
+  }),
+})
+</script>
