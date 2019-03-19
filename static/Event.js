@@ -4,7 +4,7 @@ watch: { id: { handler: 'load', immediate: true } },
 data() {
 	return {
 		data: undefined,
-		names: ['Squash', 'Tennis', 'Rugby', 'Badmington', 'Sandwich Techno', 'Vernissage'],
+		names: ['Squash', 'Tennis', 'Rugby', 'Padel', 'Badminton', 'Sandwich Techno', 'Vernissage'],
 		token: localStorage.token,
 		now: new Date((new Date()).getTime() - ((new Date()).getTimezoneOffset() * 60000)).toJSON()
 	}
@@ -51,8 +51,9 @@ methods: {
 },
 template: `
 <form v-if=data @submit.prevent="(id?update:create)(form($event.target),id)">
+	
 	<blockquote v-if="!user">You must be <router-link :to="{name:'me'}">logged</router-link> to create an event</blockquote>
-	<fieldset :disabled='!user || (id && user!=data.owner)'>
+	<fieldset class=card :disabled='!user || (id && user!=data.owner)'>
 		<legend>
 			<router-link :to="{name:'user', params:{id:data.owner}}">{{data.owner}}</router-link>
 			Event {{id?'':'create'}}
@@ -65,14 +66,16 @@ template: `
 		</div>
 
 		<div class=row>
-			<div class=col><label>Date:</label><input name=date  :value=data.date  type=date :min=now.slice(0,10) required></div>
-			<div class=col><label>Time:</label><input name=time  :value=data.time  type=time required></div>
-			<div class=col><label>Seats:</label><input name=total :value=data.total type=number min=1 placeholder="unlimited"></div>
+			<div class=col><label>Date:</label><input name=date :value=data.date  type=date :min=now.slice(0,10) required></div>
+			<div class=col><label>Time:</label><input name=time :value=data.time  type=time required></div>
+			<div class=col><label>Min:</label><input name=min :value=data.min type=number min=1 placeholder="0"></div>
+			<div class=col><label>Max:</label><input name=max :value=data.max type=number :min=data.min placeholder="no limit"></div>
+			<div class=col><label>Step:</label><input name=step :value=data.step type=number min=1 placeholder="1"></div>
 		</div>
-		<div class=is-right v-if="!id || user==data.owner">
-			<button class="button outline" v-if=id @click.prevent=remove(id)>Remove</button>
+		<footer class=is-right v-if="!id || user==data.owner">
+			<button class="button error outline" v-if=id @click.prevent=remove(id)>Remove</button>
 			<button class="button primary">{{id?'Update':'Create'}}</button>
-		</div>
+		</footer>
 		<input name=id :value=data.id type=hidden v-if=data.id>
 	</fieldset>
 	<div v-if='id && data.part'>
@@ -80,8 +83,8 @@ template: `
 		<ul v-if="data.part && data.part.length">
 			<li v-for="(p,i) in data.part">
 				<router-link :to="{name:'user', params:{id:p.user}}">{{p.user}}</router-link>
-				<span class="tag is-small" v-if="data.total && i>=data.total">in queue</span>
-				<button v-if="user==data.owner" class="button error" style='padding: 0.5rem 1rem;margin: 3px;' @click.prevent=leave(p.id)>&times;</button>
+				<span class="tag is-small" v-if=p.queue>Queue</span>
+				<button v-if="user==data.owner" class="button outline error padded" @click.prevent=leave(p.id)>kick</button>
 			</li>
 		</ul>
 		<p v-else class=text-light>Empty</p>
@@ -89,7 +92,7 @@ template: `
 		<div v-if=data.part>
 			<a v-if=data.part.length class="button outline" :href="'mailto:'+mails">Mail</a>
 			<button v-if="user && participants.indexOf(user)<0" class="button outline primary" @click.prevent=join(id)>Join</button>
-			<button v-if="user && participants.indexOf(user)>=0" class="button error" @click.prevent=leave()>Leave</button>
+			<button v-if="user && participants.indexOf(user)>=0" class="button outline error" @click.prevent=leave()>Leave</button>
 		</div>
 	</div>
 </form>

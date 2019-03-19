@@ -4,17 +4,19 @@
 <link rel="icon" href="/static/favicon.ico">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <style>
-  @import url("https://unpkg.com/chota@0.5.2/dist/chota.min.css");
+  @import url("https://unpkg.com/chota@0.5.3/dist/chota.min.css");
   :root {--grid-maxWidth: 72rem}
   input[readonly]{border:none !important}
   #app>nav{margin-bottom: 1em}
   button:disabled { opacity: .25 !important}
   input:disabled {background: none;border-color: transparent !important}
-  fieldset { padding: 2rem}
+  fieldset.card { border:none }
   .trans-leave-active, .trans-enter-active { transition: all .1s ease-out}
   .trans-enter, .trans-leave-to {opacity:0}
   .trans-enter {transform: translateY(-10px)}
   .trans-leave-to {transform: translateY(-15px)}
+  .button.error.outline{ color: var(--color-error); box-shadow: inset 0 0 0 1px var(--color-error);}
+  .button.padded {padding: 0.5rem 1rem; margin: 3px;}
 </style>
 
 <div id=app class=container>

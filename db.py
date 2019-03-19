@@ -6,7 +6,7 @@ class db(object):
 		self.path = path
 	def __enter__(self):
 		self.conn = sqlite3.connect(self.path)
-		self.conn.set_trace_callback(print)
+		#self.conn.set_trace_callback(print)
 		self.conn.row_factory = lambda c, r: dict(zip([col[0] for col in c.description], r))
 		self.conn.execute('PRAGMA foreign_keys = ON')
 		return self.conn.cursor()
