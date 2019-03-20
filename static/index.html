@@ -33,7 +33,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.1/vue-router.min.js"></script>
 <script>
-  form = f => [].reduce.call(f, (d, i) => (i.name ? d[i.name] = i.value : 0, d), {});
+  ival = i => i.type=='number'?+i.value:i.value
+  form = f => [].reduce.call(f, (d, i) => (i.name ? d[i.name] = ival(i) : 0, d), {});
   rest = (url, method = 'GET', body) => fetch(url, {
     method, body: body && JSON.stringify(body),
     headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${localStorage.token}` }

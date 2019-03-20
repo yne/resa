@@ -16,6 +16,7 @@ computed: {
 },
 methods: {
 	form:form,
+	tick(t) {return (new Date(t)).toLocaleString()},
 	async load(force) {
 		if (force || (this.$props.id && !(this.data || {}).id))
 			this.data = await rest(`/event/${this.id}`);
@@ -82,8 +83,8 @@ template: `
 		<h4>Participants:</h4>
 		<ul v-if="data.part && data.part.length">
 			<li v-for="(p,i) in data.part">
-				<router-link :to="{name:'user', params:{id:p.user}}">{{p.user}}</router-link>
-				<span class="tag is-small" v-if=p.queue>Queue</span>
+				<router-link :title=tick(p.tick) :to="{name:'user', params:{id:p.user}}">{{p.user}}</router-link>
+				<span class="tag is-small" v-if=p.queue>In Queue</span>
 				<button v-if="user==data.owner" class="button outline error padded" @click.prevent=leave(p.id)>kick</button>
 			</li>
 		</ul>
