@@ -1,0 +1,24 @@
+# SystemD Service File
+# cp into /etc/systemd/system/resa.service
+# then systemctl start resa && systemctl enable resa
+[Unit]
+Description=Resa
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/resa/FlaskVue
+Environment="FLASK_APP=app.py"
+Environment="HOST=0.0.0.0"
+Environment="PORT=80"
+Environment="MAIL_URL=http://resa.local"
+Environment="MAIL_TIME=17:03"
+Environment="MAIL_SRV=my.server.com"
+Environment="LDAP_DC=ldap-server.prive"
+Environment="LDAP_IP=141.212.121.242"
+Environment="SECRET_KEY=S3Cr37"
+ExecStart=/usr/bin/flask run --host=0.0.0.0 --port=80
+
+[Install]
+WantedBy=multi-user.target

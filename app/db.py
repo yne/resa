@@ -14,8 +14,8 @@ class db(object):
 		self.conn.commit()
 		self.conn.close()
 
-def _where(keys, action=' WHERE ', j=' AND '):
-	return action + j.join([k+'='+(v.decode() if type(v) is bytes else '?') for (k,v) in keys.items()]) if keys else ''
+def _where(keys, action=' WHERE ', j=' AND ',op='='):
+	return action + j.join([k+op+(v.decode() if type(v) is bytes else '?') for (k,v) in keys.items()]) if keys else ''
 def _values(keys):
 	return [v for v in keys.values() if type(v) in (str,int)]
 def _order(by):
@@ -36,9 +36,9 @@ def insert(table, keys=dict()):
 		vals = ',:'.join(keys.keys())
 		c.execute(f'INSERT INTO {table} ({cols}) VALUES (:{vals})', _values(keys))
 		return c.lastrowid
-def all(table, cond=dict(), order=None):
+def all(table, cond=dict(), order=None, **argp):
 	with db(DB_NAME) as c:
-		return c.execute(f"SELECT * FROM {table}" + _where(cond) + _order(order), _values(cond)).fetchall()
+		return c.execute(f"SELECT * FROM {table}" + _where(cond,**argp) + _order(order), _values(cond)).fetchall()
 def get(table, cond=dict()):
 	with db(DB_NAME) as c:
 		return c.execute(f"SELECT * FROM {table}" + _where(cond), _values(cond)).fetchone()

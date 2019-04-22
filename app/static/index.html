@@ -1,0 +1,70 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Resa</title>
+<link rel="icon" href="/static/favicon.ico">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+  @import url("https://unpkg.com/chota@0.6.1/dist/chota.min.css");
+  /*:root {--grid-maxWidth: 72rem}*/
+  #app>nav{margin-bottom: 3em}
+  .grouped > select:not(:last-child) {margin-right: 16px;}
+  .button,button{padding: 1rem 1.5rem;}
+  dialog{border: none;width: min-content;min-width:400px}
+  summary{cursor: pointer;}
+  .ib{display:inline-block}
+  td.min {width: 1%;white-space: nowrap;}
+  .trans-leave-active, .trans-enter-active { transition: all .1s ease-out}
+  .trans-enter, .trans-leave-to {opacity:0}
+  .trans-enter {transform: translateY(-10px)}
+  .trans-leave-to {transform: translateY(-15px)}
+</style>
+
+<div id=app class=container>
+  <nav class="tabs is-full">
+    <a is=router-link :to="{name:'events'}">🎾<span class=hide-sm> Events</span></a>
+    <a is=router-link :to="{name:'games'}">🎲<span class=hide-sm> Jeux</span></a>
+    <a is=router-link :to="{name:'tools'}">🔧<span class=hide-sm> Outils</span></a>
+    <auth-form style=width:135px></auth-form>
+  </nav>
+  <transition name=trans mode=out-in>
+    <router-view />
+  </transition>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.1/vue-router.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dialog-polyfill/0.5.0/dialog-polyfill.min.js"></script>
+<script>
+  HTMLFormElement.prototype.json = function () {
+    ival = i => i.type=='number'?(i.value===''?'':+i.value):i.value;
+    return [].reduce.call(this, (d, i) => (i.name ? d[i.name] = ival(i) : 0, d), {})
+  }
+</script>
+<script type=module>
+import $auth     from "/static/$Auth.js"
+import AuthForm  from "/static/AuthForm.js"
+import EventList from "/static/EventList.js";
+import GameList  from "/static/GameList.js";
+import ToolList  from "/static/ToolList.js";
+
+Vue.prototype.rest = function(url, method = 'GET', body) {
+  return fetch(url, {method, body: body && JSON.stringify(body)})
+  .then(r => { if (!r.ok) throw Error(r.statusText); return r.json() })
+  .catch(alert)
+}
+const v = new Vue({
+  el: '#app',
+  components: {AuthForm},
+  router: new VueRouter({
+    linkActiveClass: 'active',
+    mode: 'history',
+    routes: [
+      { path: '/', redirect:'/events'},
+      { name: "events", path: '/events', component: EventList},
+      { name: "games",  path: '/games',  component: GameList},
+      { name: "tools",  path: '/tools',  component: ToolList},
+      { name: "404",    path: '*',       component: {template: `<router-link :to="'/'">404</router-link>`}},
+    ]
+  }),
+});
+</script>
